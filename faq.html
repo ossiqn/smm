@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sıkça Sorulan Sorular - Darq SMM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --secondary: #10B981;
+            --accent: #F59E0B;
+            --bg-body: #020617;
+            --bg-card: rgba(30, 41, 59, 0.6);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --gradient-main: linear-gradient(135deg, #8B5CF6 0%, #4F46E5 100%);
+            --gradient-text: linear-gradient(135deg, #C4B5FD 0%, #6EE7B7 100%);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --glow: 0 0 30px rgba(139, 92, 246, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); overflow-x: hidden; line-height: 1.6; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-dark); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        .background-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
+        .glow-blob { position: absolute; filter: blur(90px); opacity: 0.3; border-radius: 50%; animation: float 15s infinite alternate ease-in-out; }
+        .blob-1 { top: -10%; left: -10%; width: 600px; height: 600px; background: var(--primary); }
+        .blob-2 { bottom: 10%; right: -10%; width: 500px; height: 500px; background: #059669; animation-delay: -5s; }
+
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, 40px) scale(1.05); } }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        .navbar { padding: 20px 0; position: fixed; width: 100%; top: 0; z-index: 1000; background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(15px); border-bottom: var(--glass-border); transition: 0.3s; }
+        .navbar.scrolled { padding: 15px 0; background: rgba(2, 6, 23, 0.95); }
+        .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+        
+        .logo { display: flex; align-items: center; gap: 12px; font-family: 'Outfit', sans-serif; font-size: 1.6rem; font-weight: 800; text-decoration: none; color: white; letter-spacing: -0.5px; }
+        .logo i { color: var(--primary); font-size: 1.8rem; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5)); }
+        
+        .nav-links { display: flex; gap: 25px; align-items: center; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 500; transition: 0.3s; font-size: 0.95rem; position: relative; white-space: nowrap; }
+        .nav-links a:hover, .nav-links a.active { color: white; }
+        .nav-links a::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--gradient-main); transition: 0.3s; border-radius: 2px; }
+        .nav-links a:hover::after { width: 100%; }
+
+        .nav-actions { display: flex; gap: 15px; }
+        
+        .btn { padding: 10px 24px; border-radius: 12px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; font-size: 0.95rem; }
+        .btn-primary { background: var(--gradient-main); color: white; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(139, 92, 246, 0.6); }
+        .btn-outline { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); color: white; backdrop-filter: blur(5px); }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; transform: translateY(-3px); }
+
+        .menu-toggle { display: none; font-size: 1.5rem; color: white; cursor: pointer; }
+
+        .hero-section { padding: 180px 0 80px; text-align: center; position: relative; }
+        .hero-title { font-family: 'Outfit', sans-serif; font-size: 3.5rem; line-height: 1.1; font-weight: 800; margin-bottom: 20px; }
+        .text-gradient { background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-desc { color: var(--text-muted); font-size: 1.1rem; max-width: 700px; margin: 0 auto 40px; }
+
+        .search-box { background: var(--bg-card); backdrop-filter: blur(15px); border-radius: 20px; padding: 10px; border: var(--glass-border); max-width: 600px; margin: 0 auto 50px; display: flex; align-items: center; box-shadow: var(--shadow); }
+        .search-box input { flex: 1; background: transparent; border: none; padding: 15px; color: white; font-size: 1.1rem; outline: none; }
+        .search-box i { color: var(--text-muted); margin-left: 15px; font-size: 1.2rem; }
+
+        .faq-categories { display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 50px; }
+        .cat-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: var(--text-muted); padding: 10px 25px; border-radius: 30px; cursor: pointer; transition: 0.3s; font-weight: 500; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .cat-btn:hover, .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: var(--glow); }
+
+        .faq-grid { max-width: 900px; margin: 0 auto 100px; display: flex; flex-direction: column; gap: 20px; }
+        .faq-item { background: var(--bg-card); border: var(--glass-border); border-radius: 16px; overflow: hidden; transition: 0.3s; backdrop-filter: blur(10px); }
+        .faq-item:hover { border-color: var(--primary); transform: translateY(-2px); }
+        
+        .faq-question { padding: 25px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; color: white; font-size: 1.1rem; font-family: 'Outfit', sans-serif; }
+        .faq-question i { color: var(--primary); transition: 0.3s; }
+        .faq-item.active .faq-question i { transform: rotate(180deg); }
+        
+        .faq-answer { padding: 0 25px; max-height: 0; overflow: hidden; transition: 0.4s ease-out; color: var(--text-muted); line-height: 1.7; font-size: 1rem; border-top: 1px solid transparent; }
+        .faq-item.active .faq-answer { padding: 0 25px 25px; max-height: 500px; border-top-color: rgba(255,255,255,0.05); }
+
+        .help-box { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 30px; padding: 50px 20px; text-align: center; max-width: 800px; margin: 0 auto 100px; backdrop-filter: blur(15px); }
+        .help-box h3 { font-size: 2rem; margin-bottom: 15px; font-family: 'Outfit', sans-serif; font-weight: 700; color: white; }
+        .help-box p { color: var(--text-muted); margin-bottom: 30px; font-size: 1.1rem; }
+
+        .footer { padding: 60px 0 30px; background: rgba(2, 6, 23, 0.95); border-top: var(--glass-border); }
+        .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 50px; }
+        .footer-col h4 { color: white; margin-bottom: 25px; font-size: 1.2rem; font-weight: 700; font-family: 'Outfit', sans-serif; }
+        .footer-links a { display: block; color: var(--text-muted); text-decoration: none; margin-bottom: 12px; transition: 0.3s; font-size: 0.95rem; }
+        .footer-links a:hover { color: var(--primary); padding-left: 5px; }
+        
+        .social-icons { display: flex; gap: 10px; margin-top: 25px; }
+        .social-icons a { display: inline-flex; width: 45px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 12px; align-items: center; justify-content: center; color: white; text-decoration: none; transition: 0.3s; border: 1px solid rgba(255,255,255,0.05); }
+        .social-icons a:hover { background: var(--primary); transform: translateY(-5px); border-color: transparent; box-shadow: var(--glow); }
+        
+        .payment-methods { display: flex; gap: 15px; margin-top: 15px; font-size: 1.8rem; color: var(--text-muted); }
+
+        @media (max-width: 992px) {
+            .nav-links { display: none; position: absolute; top: 70px; left: 0; width: 100%; background: rgba(2, 6, 23, 0.95); flex-direction: column; padding: 30px; border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(20px); height: calc(100vh - 70px); overflow-y: auto; }
+            .nav-links.active { display: flex; }
+            .nav-actions { display: none; }
+            .menu-toggle { display: block; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-title { font-size: 2.5rem; }
+            .footer-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-glow">
+        <div class="glow-blob blob-1"></div>
+        <div class="glow-blob blob-2"></div>
+    </div>
+
+    <nav class="navbar" id="navbar">
+        <div class="container nav-inner">
+            <a href="index.php" class="logo">
+                <i class="fas fa-bolt"></i> Darq
+            </a>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="index.php">Ana Sayfa</a>
+                <a href="services.php">Hizmetler</a>
+                <a href="about.html">Hakkımızda</a>
+                <a href="contact.php">İletişim</a>
+                <a href="faq.html" class="active">SSS</a>
+                <a href="tos.html">Kullanım Şartları</a>
+                <a href="privacy.html">Gizlilik Politikası</a>
+                <a href="refund.html">İade Politikası</a>
+
+                <div id="mobile-auth" style="display: none; flex-direction: column; gap: 10px; width: 100%; margin-top: 15px;">
+                    <a href="login.php" class="btn btn-outline" style="justify-content: center;">Giriş Yap</a>
+                    <a href="register.php" class="btn btn-primary" style="justify-content: center;">Kayıt Ol</a>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <a href="login.php" class="btn btn-outline">Giriş Yap</a>
+                <a href="register.php" class="btn btn-primary">Kayıt Ol</a>
+            </div>
+            
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+
+    <section class="hero-section">
+        <div class="container">
+            <h1 class="hero-title">Sıkça Sorulan <span class="text-gradient">Sorular</span></h1>
+            <p class="hero-desc">
+                Darq SMM Panel hizmetleri, ödemeler ve süreçler hakkında merak ettiğiniz tüm soruların cevapları burada.
+            </p>
+            
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="faqSearch" placeholder="Sorunuzu buraya yazın...">
+            </div>
+
+            <div class="faq-categories">
+                <button class="cat-btn active" data-category="all">Tümü</button>
+                <button class="cat-btn" data-category="general">Genel</button>
+                <button class="cat-btn" data-category="payment">Ödeme & PayTR</button>
+                <button class="cat-btn" data-category="orders">Siparişler</button>
+                <button class="cat-btn" data-category="technical">Teknik</button>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-content">
+        <div class="container">
+            <div class="faq-grid">
+                <div class="faq-item" data-category="general">
+                    <div class="faq-question">
+                        <span>Darq SMM Panel nedir?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Darq SMM Panel, Instagram, TikTok, YouTube ve diğer sosyal medya platformları için takipçi, beğeni, izlenme gibi etkileşim hizmetleri sağlayan tam otomatik bir bayilik panelidir.
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="general">
+                    <div class="faq-question">
+                        <span>Hizmetleriniz güvenli mi?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Kesinlikle. Tüm işlemlerimiz 256-bit SSL sertifikası ile korunmaktadır. Ayrıca sosyal medya hesaplarınızın şifresini asla talep etmiyoruz.
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="payment">
+                    <div class="faq-question">
+                        <span>PayTR ile ödeme güvenli mi?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Evet, PayTR Türkiye'nin en güvenilir ve BDDK lisanslı ödeme kuruluşlarından biridir. Kart bilgileriniz sunucularımızda saklanmaz, işlemler 3D Secure ile şifrelenerek bankanız üzerinden gerçekleşir.
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="payment">
+                    <div class="faq-question">
+                        <span>Bakiye ne zaman hesabıma geçer?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        PayTR (Kredi Kartı) ile yapılan yüklemeler 7/24 anında ve otomatik olarak bakiyenize yansır. Havale/EFT işlemlerinde ise ödeme bildirimi sonrası kısa sürede onaylanır.
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="orders">
+                    <div class="faq-question">
+                        <span>Siparişler ne zaman başlar?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Çoğu servisimiz "Anlık" olarak çalışır. Sipariş verdiğiniz anda sistem otomatik olarak işleme alır ve gönderim başlar. Yoğunluğa göre nadiren gecikmeler olabilir.
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="orders">
+                    <div class="faq-question">
+                        <span>Telafi (Refill) garantisi nedir?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Garantili servislerimizde, satın alınan miktarda düşüş yaşanması durumunda, siparişler sayfasındaki "Telafi Et" butonunu kullanarak ücretsiz dolum talep edebilirsiniz.
+                    </div>
+                </div>
+
+                <div class="faq-item" data-category="technical">
+                    <div class="faq-question">
+                        <span>API desteği var mı?</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                        Evet, gelişmiş API desteğimiz mevcuttur. Kendi panelinizi kurabilir veya toplu işlemler için sistemimize entegre olabilirsiniz. API dokümantasyonuna menüden ulaşabilirsiniz.
+                    </div>
+                </div>
+            </div>
+
+            <div class="help-box">
+                <h3>Aradığınız cevabı bulamadınız mı?</h3>
+                <p>Destek ekibimiz size yardımcı olmak için 7/24 hazır.</p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <a href="contact.php" class="btn btn-primary">İletişime Geç</a>
+                    <a href="https://t.me/darq_support" target="_blank" class="btn btn-outline">Telegram Destek</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="index.php" class="logo" style="margin-bottom: 20px; display: block;">
+                        <i class="fas fa-bolt"></i> Darq
+                    </a>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                        Sosyal medya hesaplarınızı büyütmenin en profesyonel, hızlı ve güvenilir adresi. <br>2026 © Tüm hakları saklıdır.
+                    </p>
+                    <div class="social-icons" style="margin-top: 25px;">
+                        <a href="https://t.me/DarqSmm0" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.instagram.com/darqsmm" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://wa.me/+212721490727" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Hızlı Erişim</h4>
+                    <div class="footer-links">
+                        <a href="index.php">Ana Sayfa</a>
+                        <a href="services.php">Hizmetler</a>
+                        <a href="api.php">API Dokümanı</a>
+                        <a href="about.html">Hakkımızda</a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Destek & Yasal</h4>
+                    <div class="footer-links">
+                        <a href="faq.html">Sıkça Sorulan Sorular</a>
+                        <a href="tos.html">Kullanım Şartları</a>
+                        <a href="privacy.html">Gizlilik Politikası</a>
+                        <a href="refund.html">İade Politikası</a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>İletişim</h4>
+                    <div class="footer-links">
+                        <a href="mailto:info@darqsmm.com">info@darqsmm.com</a>
+                        <a href="https://t.me/darq_support">Telegram Destek</a>
+                        <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 10px; display: block;">
+                            Vergi No: 288*****34
+                        </span>
+                        <div class="payment-methods" style="margin-top: 15px;">
+                            <i class="fab fa-cc-visa"></i>
+                            <i class="fab fa-cc-mastercard"></i>
+                            <i class="fab fa-cc-paypal"></i>
+                            <i class="fab fa-bitcoin"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        const navbar = document.getElementById('navbar');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            if (window.innerWidth <= 992) {
+                const mobileAuth = document.getElementById('mobile-auth');
+                if (navLinks.classList.contains('active')) {
+                    mobileAuth.style.display = 'flex';
+                } else {
+                    mobileAuth.style.display = 'none';
+                }
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // FAQ Functionality
+        const faqItems = document.querySelectorAll('.faq-item');
+        const catBtns = document.querySelectorAll('.cat-btn');
+        const searchInput = document.getElementById('faqSearch');
+
+        // Toggle Accordion
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', () => {
+                const isActive = item.classList.contains('active');
+                
+                // Close all others (optional - if you want only one open at a time)
+                // faqItems.forEach(i => i.classList.remove('active'));
+
+                if(isActive) {
+                    item.classList.remove('active');
+                } else {
+                    item.classList.add('active');
+                }
+            });
+        });
+
+        // Filter Categories
+        catBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                catBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const category = btn.getAttribute('data-category');
+
+                faqItems.forEach(item => {
+                    if(category === 'all' || item.getAttribute('data-category') === category) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Search
+        searchInput.addEventListener('input', (e) => {
+            const val = e.target.value.toLowerCase();
+            faqItems.forEach(item => {
+                const text = item.innerText.toLowerCase();
+                if(text.includes(val)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>

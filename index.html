@@ -1,0 +1,506 @@
+<?php
+session_start();
+
+// İstatistikler (Animasyonun sayacağı hedef sayılar)
+$stats = [
+    'users' => 450,
+    'orders' => 2450,
+    'services' => 1250,
+];
+
+$is_logged_in = isset($_SESSION['user_id']); 
+?>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Darq SMM - Dijital Büyüme Platformu</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #8B5CF6;
+            --primary-dark: #7C3AED;
+            --secondary: #10B981;
+            --accent: #F59E0B;
+            --bg-body: #020617;
+            --bg-card: rgba(30, 41, 59, 0.6);
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --gradient-main: linear-gradient(135deg, #8B5CF6 0%, #4F46E5 100%);
+            --gradient-text: linear-gradient(135deg, #C4B5FD 0%, #6EE7B7 100%);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.08);
+            --glow: 0 0 30px rgba(139, 92, 246, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; scroll-behavior: smooth; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-body); color: var(--text-main); overflow-x: hidden; line-height: 1.6; }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg-body); }
+        ::-webkit-scrollbar-thumb { background: var(--primary-dark); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--primary); }
+
+        .background-glow { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; overflow: hidden; pointer-events: none; }
+        .glow-blob { position: absolute; filter: blur(90px); opacity: 0.3; border-radius: 50%; animation: float 15s infinite alternate ease-in-out; }
+        .blob-1 { top: -10%; left: -10%; width: 600px; height: 600px; background: var(--primary); }
+        .blob-2 { bottom: 10%; right: -10%; width: 500px; height: 500px; background: #059669; animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 30%; width: 300px; height: 300px; background: var(--accent); opacity: 0.15; animation-delay: -8s; }
+
+        @keyframes float { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(40px, 40px) scale(1.05); } }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+        .navbar { padding: 20px 0; position: fixed; width: 100%; top: 0; z-index: 1000; background: rgba(2, 6, 23, 0.7); backdrop-filter: blur(15px); border-bottom: var(--glass-border); transition: 0.3s; }
+        .navbar.scrolled { padding: 15px 0; background: rgba(2, 6, 23, 0.95); }
+        
+        .nav-inner { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            height: 50px;
+        }
+        
+        .logo { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            font-family: 'Outfit', sans-serif; 
+            font-size: 1.6rem; 
+            font-weight: 800; 
+            text-decoration: none; 
+            color: white; 
+            letter-spacing: -0.5px; 
+            margin-right: 40px;
+            flex-shrink: 0;
+        }
+        .logo i { color: var(--primary); font-size: 1.8rem; filter: drop-shadow(0 0 10px rgba(139, 92, 246, 0.5)); }
+        
+        .nav-links { 
+            display: flex; 
+            gap: 25px;
+            align-items: center; 
+            margin-right: auto;
+        }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 500; transition: 0.3s; font-size: 0.95rem; position: relative; white-space: nowrap; }
+        .nav-links a:hover, .nav-links a.active { color: white; }
+        
+        .nav-actions { 
+            display: flex; 
+            gap: 15px; 
+            flex-shrink: 0;
+        }
+        
+        .btn { padding: 10px 24px; border-radius: 12px; font-weight: 600; text-decoration: none; transition: all 0.3s ease; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; font-size: 0.95rem; letter-spacing: 0.3px; }
+        .btn-primary { background: var(--gradient-main); color: white; box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4); border: 1px solid rgba(255,255,255,0.1); }
+        .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(139, 92, 246, 0.6); }
+        .btn-outline { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.15); color: white; backdrop-filter: blur(5px); }
+        .btn-outline:hover { background: rgba(255,255,255,0.1); border-color: white; transform: translateY(-3px); }
+        .btn-lg { padding: 15px 35px; font-size: 1.1rem; }
+
+        .menu-toggle { display: none; font-size: 1.5rem; color: white; cursor: pointer; }
+
+        .hero-section { padding: 200px 0 120px; text-align: center; position: relative; }
+        .hero-badge { background: rgba(139, 92, 246, 0.15); color: #C4B5FD; padding: 8px 20px; border-radius: 50px; font-size: 0.9rem; font-weight: 600; border: 1px solid rgba(139, 92, 246, 0.3); display: inline-flex; align-items: center; gap: 8px; margin-bottom: 30px; backdrop-filter: blur(5px); }
+        .hero-title { font-family: 'Outfit', sans-serif; font-size: 5rem; line-height: 1.1; font-weight: 800; margin-bottom: 25px; letter-spacing: -2px; }
+        .text-gradient { background: var(--gradient-text); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .hero-desc { color: var(--text-muted); font-size: 1.3rem; max-width: 700px; margin: 0 auto 50px; line-height: 1.7; }
+        
+        .stats-bar { display: grid; grid-template-columns: repeat(4, 1fr); gap: 25px; margin-top: 100px; }
+        .stat-item { background: var(--bg-card); backdrop-filter: blur(15px); padding: 30px 20px; border-radius: 24px; border: var(--glass-border); text-align: center; transition: 0.4s; position: relative; overflow: hidden; }
+        .stat-item:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: var(--glow); }
+        .stat-number { display: block; font-size: 3rem; font-weight: 800; color: white; margin-bottom: 5px; font-family: 'Outfit', sans-serif; }
+        .stat-text-static { display: block; font-size: 2.5rem; font-weight: 800; color: white; margin-bottom: 5px; font-family: 'Outfit', sans-serif; }
+        .stat-label { color: var(--text-muted); font-weight: 500; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .features-section { padding: 120px 0; }
+        .section-title { text-align: center; font-size: 3rem; font-weight: 800; margin-bottom: 80px; font-family: 'Outfit', sans-serif; letter-spacing: -1px; }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px; }
+        .feature-card { background: var(--bg-card); border: var(--glass-border); padding: 50px 40px; border-radius: 30px; transition: 0.4s; position: relative; overflow: hidden; }
+        .feature-card:hover { transform: translateY(-10px); border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.3); }
+        .feature-icon { width: 70px; height: 70px; background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(52, 211, 153, 0.1)); border-radius: 20px; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: #C4B5FD; margin-bottom: 30px; border: 1px solid rgba(255,255,255,0.05); }
+        .feature-card h3 { font-size: 1.6rem; margin-bottom: 15px; font-weight: 700; }
+        .feature-card p { color: var(--text-muted); font-size: 1.05rem; line-height: 1.7; }
+
+        .steps-section { padding: 120px 0; background: rgba(0,0,0,0.2); }
+        .steps-container { display: flex; justify-content: space-between; gap: 40px; margin-top: 50px; position: relative; }
+        .steps-container::before { content: ''; position: absolute; top: 50px; left: 0; width: 100%; height: 2px; background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.5), transparent); z-index: 0; }
+        .step-item { flex: 1; text-align: center; position: relative; z-index: 1; padding: 20px; background: rgba(2, 6, 23, 0.6); backdrop-filter: blur(5px); border-radius: 20px; border: 1px solid transparent; transition: 0.3s; }
+        .step-item:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .step-number { width: 60px; height: 60px; background: var(--bg-body); border: 2px solid var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.4rem; margin: 0 auto 25px; box-shadow: var(--glow); position: relative; z-index: 2; }
+        .step-item h4 { margin-bottom: 15px; font-size: 1.3rem; font-weight: 700; }
+        .step-item p { color: var(--text-muted); font-size: 1rem; }
+
+        .cta-section { padding: 100px 0; text-align: center; }
+        .cta-box { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(16, 185, 129, 0.05)); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 40px; padding: 80px 20px; position: relative; overflow: hidden; backdrop-filter: blur(20px); }
+        .cta-box h2 { font-size: 3.5rem; margin-bottom: 25px; font-family: 'Outfit', sans-serif; font-weight: 800; }
+        .cta-box p { color: var(--text-muted); margin-bottom: 40px; font-size: 1.2rem; max-width: 600px; margin: 0 auto; }
+
+        .footer { padding: 60px 0 30px; background: rgba(2, 6, 23, 0.95); border-top: var(--glass-border); margin-top: 50px; }
+        .footer-grid { display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 50px; margin-bottom: 60px; }
+        .footer-col h4 { color: white; margin-bottom: 25px; font-size: 1.2rem; font-weight: 700; font-family: 'Outfit', sans-serif; }
+        .footer-links a { display: block; color: var(--text-muted); text-decoration: none; margin-bottom: 12px; transition: 0.3s; font-size: 0.95rem; }
+        .footer-links a:hover { color: var(--primary); transform: translateX(5px); }
+        .social-icons { display: flex; gap: 10px; margin-top: 25px; }
+        .social-icons a { display: inline-flex; width: 45px; height: 45px; background: rgba(255,255,255,0.05); border-radius: 12px; align-items: center; justify-content: center; color: white; text-decoration: none; transition: 0.3s; border: 1px solid rgba(255,255,255,0.05); }
+        .social-icons a:hover { background: var(--primary); transform: translateY(-5px); border-color: transparent; box-shadow: var(--glow); }
+
+        .reveal { opacity: 0; transform: translateY(30px); transition: all 0.8s ease; }
+        .reveal.active { opacity: 1; transform: translateY(0); }
+
+        @media (max-width: 992px) {
+            .hero-title { font-size: 3.5rem; }
+            
+            .nav-links { 
+                display: none; 
+                position: fixed; 
+                top: 70px; 
+                left: 0; 
+                width: 100%; 
+                background: rgba(2, 6, 23, 0.98); 
+                flex-direction: column; 
+                padding: 30px; 
+                border-bottom: 1px solid rgba(255,255,255,0.1); 
+                backdrop-filter: blur(20px); 
+                height: auto;
+                margin-right: 0;
+                align-items: stretch;
+                text-align: center;
+            }
+            .nav-links.active { display: flex; }
+            .nav-links a { padding: 10px 0; font-size: 1.1rem; }
+
+            .nav-actions { display: none; }
+            .menu-toggle { display: block; }
+            
+            .stats-bar { grid-template-columns: 1fr 1fr; }
+            .steps-container { flex-direction: column; }
+            .steps-container::before { display: none; }
+            .footer-grid { grid-template-columns: 1fr 1fr; }
+        }
+        
+        @media (max-width: 576px) {
+            .hero-title { font-size: 2.5rem; }
+            .stats-bar { grid-template-columns: 1fr; }
+            .footer-grid { grid-template-columns: 1fr; }
+            .btn-lg { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="background-glow">
+        <div class="glow-blob blob-1"></div>
+        <div class="glow-blob blob-2"></div>
+        <div class="glow-blob blob-3"></div>
+    </div>
+
+    <nav class="navbar" id="navbar">
+        <div class="container nav-inner">
+            <a href="index.php" class="logo">
+                <i class="fas fa-bolt"></i> Darq
+            </a>
+            
+            <div class="nav-links" id="navLinks">
+                <a href="index.php" class="active">Ana Sayfa</a>
+                <a href="about.html">Hakkımızda</a>
+                <a href="contact.php">İletişim</a>
+                <a href="faq.html">SSS</a>
+                <a href="tos.html">Kullanım Şartları</a>
+                <a href="privacy.html">Gizlilik Politikası</a>
+                
+                <div id="mobile-auth" style="display: none; flex-direction: column; gap: 15px; width: 100%; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px;">
+                     <?php if($is_logged_in): ?>
+                        <a href="dashboard.php" class="btn btn-primary" style="justify-content: center;">Dashboard</a>
+                    <?php else: ?>
+                        <a href="login.php" class="btn btn-outline" style="justify-content: center;">Giriş Yap</a>
+                        <a href="register.php" class="btn btn-primary" style="justify-content: center;">Kayıt Ol</a>
+                    <?php endif; ?>
+                </div>
+            </div>
+
+            <div class="nav-actions">
+                <?php if($is_logged_in): ?>
+                    <a href="dashboard.php" class="btn btn-primary"><i class="fas fa-columns"></i> Dashboard</a>
+                <?php else: ?>
+                    <a href="login.php" class="btn btn-outline">Giriş Yap</a>
+                    <a href="register.php" class="btn btn-primary">Kayıt Ol</a>
+                <?php endif; ?>
+            </div>
+            
+            <div class="menu-toggle" id="menuToggle">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </nav>
+    <section class="hero-section">
+        <div class="container">
+            <div class="reveal">
+                <span class="hero-badge"><i class="fas fa-star"></i> 2025'in En Gelişmiş SMM Paneli</span>
+                <h1 class="hero-title">
+                    Sosyal Medyada <br>
+                    <span class="text-gradient">Limitleri Kaldırın</span>
+                </h1>
+                <p class="hero-desc">
+                    Türkiye'nin en hızlı ve güvenilir SMM paneli ile etkileşimlerinizi zirveye taşıyın. 
+                    Instagram, TikTok ve YouTube için anlık, garantili ve uygun fiyatlı çözümler.
+                </p>
+                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
+                    <?php if($is_logged_in): ?>
+                        <a href="services.php" class="btn btn-primary btn-lg"><i class="fas fa-rocket"></i> Hemen Sipariş Ver</a>
+                    <?php else: ?>
+                        <a href="register.php" class="btn btn-primary btn-lg"><i class="fas fa-user-plus"></i> Ücretsiz Kayıt Ol</a>
+                    <?php endif; ?>
+                    <a href="services.php" class="btn btn-outline btn-lg"><i class="fas fa-list"></i> Fiyatları Gör</a>
+                </div>
+            </div>
+
+            <div class="stats-bar reveal">
+                <div class="stat-item">
+                    <span class="stat-number" data-target="<?php echo $stats['users']; ?>">0+</span>
+                    <span class="stat-label">Mutlu Müşteri</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="<?php echo $stats['orders']; ?>">0+</span>
+                    <span class="stat-label">Tamamlanan İşlem</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" data-target="<?php echo $stats['services']; ?>">0+</span>
+                    <span class="stat-label">Aktif Servis</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-text-static">7/24</span>
+                    <span class="stat-label">Canlı Destek</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="features-section">
+        <div class="container">
+            <h2 class="section-title reveal">Neden <span class="text-gradient">Darq SMM?</span></h2>
+            <div class="features-grid">
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+                    <h3>Yıldırım Hızı</h3>
+                    <p>Tam otomatik sistemimiz sayesinde siparişleriniz saniyeler içinde işleme alınır ve gönderim başlar. Beklemek yok.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                    <h3>%100 Güvenli</h3>
+                    <p>Hesap şifrenizi asla talep etmiyoruz. Tüm işlemler 256-bit SSL sertifikası ve 3D Secure ile korunmaktadır.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-headset"></i></div>
+                    <h3>Premium Destek</h3>
+                    <p>Sorularınız mı var? Uzman destek ekibimize WhatsApp, Telegram veya panel üzerinden 7/24 ulaşabilirsiniz.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-code"></i></div>
+                    <h3>Gelişmiş API</h3>
+                    <p>Kendi panelinizi mi kuruyorsunuz? Güçlü ve stabil API altyapımız ile kolayca entegrasyon sağlayın.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-tags"></i></div>
+                    <h3>Rekabetçi Fiyatlar</h3>
+                    <p>Piyasadaki en uygun fiyatları sunuyoruz. Bayilerimize özel ek indirimler ve avantajlar sağlıyoruz.</p>
+                </div>
+                <div class="feature-card reveal">
+                    <div class="feature-icon"><i class="fas fa-sync"></i></div>
+                    <h3>Otomatik Telafi</h3>
+                    <p>Garantili servislerimizde düşüş yaşanması durumunda tek tuşla otomatik telafi (refill) yapabilirsiniz.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="steps-section">
+        <div class="container">
+            <h2 class="section-title reveal">Nasıl Çalışır?</h2>
+            <div class="steps-container reveal">
+                <div class="step-item">
+                    <div class="step-number">1</div>
+                    <h4>Ücretsiz Kayıt Ol</h4>
+                    <p>Sadece 30 saniyede kayıt formunu doldurarak aramıza katılın.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">2</div>
+                    <h4>Bakiye Yükle</h4>
+                    <p>Kredi kartı, havale veya kripto ile güvenli şekilde bakiye yükleyin.</p>
+                </div>
+                <div class="step-item">
+                    <div class="step-number">3</div>
+                    <h4>Sipariş Ver</h4>
+                    <p>İhtiyacınız olan servisi seçin, linki girin ve arkanıza yaslanın.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-box reveal">
+                <h2>Büyümeye Hazır Mısınız?</h2>
+                <p>Binlerce fenomen ve marka Darq SMM Panel'i tercih ediyor. Siz de katılın, rakiplerinizin önüne geçin.</p>
+                <a href="register.php" class="btn btn-primary btn-lg">Hemen Başla <i class="fas fa-arrow-right"></i></a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="index.php" class="logo" style="margin-bottom: 20px; display: block;">
+                        <i class="fas fa-bolt"></i> Darq
+                    </a>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.6;">
+                        Sosyal medya hesaplarınızı büyütmenin en profesyonel, hızlı ve güvenilir adresi. <br>2026 © Tüm hakları saklıdır.
+                    </p>
+                    <div class="social-icons" style="margin-top: 25px;">
+                        <a href="https://t.me/DarqSmm0" target="_blank"><i class="fab fa-telegram"></i></a>
+                        <a href="https://www.instagram.com/darqsmm" target="_blank"><i class="fab fa-instagram"></i></a>
+                        <a href="https://wa.me/+212721490727" target="_blank"><i class="fab fa-whatsapp"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Hızlı Erişim</h4>
+                    <div class="footer-links">
+                        <a href="index.php">Ana Sayfa</a>
+                        <a href="services.php">Hizmetler</a>
+                        <a href="api.php">API Dokümanı</a>
+                        <a href="about.html">Hakkımızda</a>
+                        <a href="faq.html">Sıkça Sorulan Sorular</a>
+                        <a href="tos.html">Kullanım Şartları</a>
+                        <a href="privacy.html">Gizlilik Politikası</a>
+                        <a href="refund.html">İade Politikası</a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>Destek & Yasal</h4>
+                    <div class="footer-links">
+                        <a href="faq.html">Sıkça Sorulan Sorular</a>
+                        <a href="tos.html">Kullanım Şartları</a>
+                        <a href="privacy.html">Gizlilik Politikası</a>
+                        <a href="refund.html">İade Politikası</a>
+                    </div>
+                </div>
+                
+                <div class="footer-col">
+                    <h4>İletişim</h4>
+                    <div class="footer-links">
+                        <a href="mailto:info@darqsmm.com">info@darqsmm.com</a>
+                        <a href="https://t.me/darq_support">Telegram Destek</a>
+                        <span style="color: var(--text-muted); font-size: 0.9rem; margin-top: 10px; display: block;">
+                            Vergi No: 288******34
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        const menuToggle = document.getElementById('menuToggle');
+        const navLinks = document.getElementById('navLinks');
+        const navbar = document.getElementById('navbar');
+        const mobileAuth = document.getElementById('mobile-auth');
+
+        menuToggle.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+            
+            if (window.innerWidth <= 992) {
+                if (navLinks.classList.contains('active')) {
+                    mobileAuth.style.display = 'flex';
+                } else {
+                    mobileAuth.style.display = 'none';
+                }
+            }
+        });
+
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 150;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        reveal();
+
+        const counters = document.querySelectorAll('.stat-number');
+        const speed = 200;
+
+        const animateCounters = () => {
+            counters.forEach(counter => {
+                const targetText = counter.getAttribute('data-target');
+                if(!targetText) return; 
+                
+                const target = +targetText;
+                if(isNaN(target)) return;
+
+                const updateCount = () => {
+                    const count = +counter.innerText.replace('+', '').replace(',', ''); 
+                    const inc = target / speed;
+
+                    if (count < target) {
+                        counter.innerText = Math.ceil(count + inc) + '+';
+                        setTimeout(updateCount, 20);
+                    } else {
+                        counter.innerText = target.toLocaleString() + '+'; 
+                    }
+                };
+                updateCount();
+            });
+        }
+        
+        let hasAnimated = false;
+        window.addEventListener('scroll', () => {
+            const statsSection = document.querySelector('.stats-bar');
+            if (statsSection && !hasAnimated) {
+                const sectionTop = statsSection.getBoundingClientRect().top;
+                if (sectionTop < window.innerHeight - 100) {
+                    animateCounters();
+                    hasAnimated = true;
+                }
+            }
+        });
+        
+        window.addEventListener('load', () => {
+             const statsSection = document.querySelector('.stats-bar');
+            if (statsSection) {
+                 const sectionTop = statsSection.getBoundingClientRect().top;
+                 if (sectionTop < window.innerHeight) {
+                    animateCounters();
+                    hasAnimated = true;
+                 }
+            }
+        });
+
+        const cards = document.querySelectorAll(".feature-card");
+        cards.forEach((card) => {
+            card.onmousemove = (e) => {
+                const x = e.pageX - card.offsetLeft;
+                const y = e.pageY - card.offsetTop;
+                card.style.setProperty("--mouse-x", `${x}px`);
+                card.style.setProperty("--mouse-y", `${y}px`);
+            };
+        });
+    </script>
+</body>
+</html>
