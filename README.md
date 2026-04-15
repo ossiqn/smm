@@ -74,26 +74,4 @@ Kurulumdan sonra:
 install klasörünü sil
 debug kapat
 admin şifreni değiş
-⚠️ ÖNEMLİ NOT (bunu iyi oku)
 
-Bu repo R10’da paylaşılan bir script ve “tam stabil değil” diye yorum var
-
-Yani:
-
-bug olabilir
-mobil uyum sıkıntı olabilir
-güvenlik açıkları olabilir
-
-👉 Production kullanacaksan:
-
-VPS + firewall
-Cloudflare
-SQL injection test
-🧠 Ekstra (işine yarar)
-
-Eğer Laravel tabanlıysa (bazı SMM scriptler öyle):
-
-composer install
-npm install
-php artisan migrate
-php artisan serve
